@@ -140,6 +140,7 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -153,6 +154,9 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
+    fonto = pg.font.Font(None, 80)
+    txt = fonto.render("Game Over", True, (255, 0, 0))
+    screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
