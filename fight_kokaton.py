@@ -3,6 +3,7 @@ import random
 import sys
 import time
 import pygame as pg
+import math
 
 
 WIDTH = 1100  # ゲームウィンドウの幅
@@ -84,6 +85,23 @@ class Bird:
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
 
+class Score:            #課題1
+    """
+    スコア表示クラス
+    """
+    def __init__(self):
+        self.fonto = pg.font.SysFont(None, 30)
+        self.color = (0, 0, 255)
+        self.score = 0
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+
+        self.rect = self.img.get_rect()
+        self.rect.center = (100, HEIGHT - 50)
+
+    def update(self, screen):
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        screen.blit(self.img, self.rect)
+
 
 class Beam:
     """
@@ -138,6 +156,8 @@ class Bomb:
             self.vy *= -1
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
+        
+
 
 
 
@@ -154,7 +174,9 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
+    score = Score()     #スコアクラスから、インスタンス作成
     while True:
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
@@ -179,6 +201,7 @@ def main():
                 if beam.rct.colliderect(bomb.rct):  # 練習2：爆弾とビームの衝突判定
                     beam = None
                     bombs[i] = None
+                    score.score += 1
                     bird.change_img(6, screen)  # 練習3：こうかとん喜びエフェクト
                     pg.display.update()
                     time.sleep(1)
@@ -189,6 +212,7 @@ def main():
             beam.update(screen)
         for bomb in bombs: 
             bomb.update(screen)
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
