@@ -158,6 +158,31 @@ class Bomb:
         screen.blit(self.img, self.rct)
         
 
+class Explosion:
+    """
+    爆発エフェクトに関するクラス
+    """
+    def __init__(self, center: tuple[int, int]):
+        """
+        爆発画像Surfaceを生成する
+        """
+        self.imgs = [
+            pg.image.load("fig/explosion.gif"),
+            pg.transform.flip(pg.image.load("fig/explosion.gif"), True, False)
+        ]
+        self.rct = self.imgs[0].get_rect()
+        self.rct.center = center
+        self.life = 10  # 表示時間
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発を更新する
+        引数 screen：画面Surface
+        """
+        self.life -= 1
+        if self.life > 0:
+            screen.blit(self.imgs[self.life % len(self.imgs)], self.rct)
+
 
 
 
@@ -176,6 +201,7 @@ def main():
     tmr = 0
     score = Score()     #スコアクラスから、インスタンス作成
     beams = []  #空のリスト
+    explosions = []  #空のリスト
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -196,11 +222,14 @@ def main():
                 if bomb is not None and beam.rct.colliderect(bomb.rct):
                     beams.remove(beam)
                     bombs[i] = None
+                    explosions.append(Explosion(bomb.rct.center))  # Explosionインスタンスを生成，リストにappend
                     score.score += 1
                     bird.change_img(6, screen)
                     break  # 一つのビームで一つの爆弾のみ
 
         bombs = [bomb for bomb in bombs if bomb is not None]
+
+        explosions = [e for e in explosions if e.life > 0]  # lifeが0より大きいExplosionインスタンスだけのリストにする
 
         # こうかとんと爆弾の当たり判定（ゲームオーバー）
         for bomb in bombs:
@@ -219,6 +248,8 @@ def main():
          
         for bomb in bombs: 
             bomb.update(screen)
+        for explosion in explosions:
+            explosion.update(screen)  # updateメソッドを呼び出して爆発を描画
         score.update(screen)
         pg.display.update()
         tmr += 1
